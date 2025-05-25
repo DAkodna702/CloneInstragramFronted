@@ -75,7 +75,7 @@ export default function InstagramLogin() {
             </div>
 
             <div className="text-center mt-2 text-sm">
-              <a href="#" className="text-[#00376b] hover:underline">
+              <a href="/olvidar" className="text-[#00376b] hover:underline">
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
@@ -83,7 +83,7 @@ export default function InstagramLogin() {
             <div className="text-center text-sm mt-8">
               ¿No tienes una cuenta?
               <a
-                href="#"
+                href="/registrate"
                 className="text-blue-500 font-semibold hover:underline"
               >
                 {" "}
