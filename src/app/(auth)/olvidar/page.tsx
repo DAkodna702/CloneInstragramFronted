@@ -104,7 +104,7 @@ export default function ForgotPassword() {
 
           {/* Botón fijo en la parte inferior del cuadro */}
           <a
-            href="/login2"
+            href="/login"
             className="block w-full border-t border-gray-300 py-3 text-sm font-semibold hover:bg-gray-100"
           >
             Volver al inicio de sesión

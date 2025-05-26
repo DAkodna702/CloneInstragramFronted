@@ -1,6 +1,81 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function InstagramRegister() {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    contact: "",
+    password: "",
+    confirmPassword: "",
+    fullName: "",
+    username: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const isEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const isPhone = (value:string) => /^\d{7,15}$/.test(value);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const { contact, password, confirmPassword, fullName, username } = formData;
+
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    let payload: {
+      username: string;
+      password: string;
+      fullName: string;
+      bio: string | null;
+      profilePicture: string | null;
+      email: string | null;
+      phoneNumber: string | null;
+    } = {
+      username,
+      password,
+      fullName,
+      bio: null,
+      profilePicture: null,
+      email: null,
+      phoneNumber: null,
+    };
+
+    if (isEmail(contact)) {
+      payload.email = contact;
+    } else if (isPhone(contact)) {
+      payload.phoneNumber = contact;
+    } else {
+      alert("Ingresa un correo o número válido");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        router.push("/vistas");
+      } else {
+        alert("Error al registrar");
+      }
+    } catch (error) {
+      alert("Error en la conexión");
+      console.error(error);
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen bg-white text-black">
       {/* Contenido principal */}
@@ -22,6 +97,7 @@ export default function InstagramRegister() {
           {/* Botón de Facebook */}
           <div className="flex justify-center mb-4">
             <button
+              onClick={() => signIn("facebook")}
               type="button"
               className="flex items-center gap-2 w-[90%] justify-center bg-blue-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700"
             >
@@ -40,34 +116,49 @@ export default function InstagramRegister() {
           </div>
 
           {/* Formulario */}
-          <form className="space-y-3">
+          <form className="space-y-3" onSubmit={handleSubmit}>
             <input
-              type="email"
-              placeholder="Correo electrónico"
+              type="text"
+              name="contact"
+              placeholder="Correo electrónico o número de teléfono"
+              value={formData.contact}
+              onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
             <input
               type="password"
+              name="password"
               placeholder="Contraseña"
+              value={formData.password}
+              onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
             <input
               type="password"
+              name="confirmPassword"
               placeholder="Confirmar contraseña"
+              value={formData.confirmPassword}
+              onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
             <input
               type="text"
+              name="fullName"
               placeholder="Nombre completo"
+              value={formData.fullName}
+              onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
             <input
               type="text"
+              name="username"
               placeholder="Nombre de usuario"
+              value={formData.username}
+              onChange={handleChange}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />

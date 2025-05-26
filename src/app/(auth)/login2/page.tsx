@@ -1,6 +1,36 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function InstagramLogin2() {
+  const [campo, setCampo] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:8080/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ campo, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === true) {
+      
+        router.push("/visitas");
+      } else {
+        alert("Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.error("Error al conectar con el servidor:", error);
+      alert("No se pudo conectar al servidor");
+    }
+  };
   return (
     <div className="flex flex-col min-h-screen bg-white text-black">
       <div className="flex flex-col items-center justify-center flex-grow p-4">
@@ -15,16 +45,20 @@ export default function InstagramLogin2() {
           </div>
 
           {/* Formulario de Login */}
-          <form className="space-y-3">
+          <form className="space-y-3" onSubmit={handleSubmit}>
             <input
               type="text"
               placeholder="Teléfono, usuario o correo electrónico"
+              value={campo}
+              onChange={(e) => setCampo(e.target.value)}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
             <input
               type="password"
               placeholder="Contraseña"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full border border-gray-300 p-2 text-sm bg-white text-black focus:outline-none"
             />
@@ -46,6 +80,7 @@ export default function InstagramLogin2() {
           {/* Botón Facebook */}
           <div className="flex justify-center mb-2">
             <button
+              onClick={() => signIn("facebook")}
               type="button"
               className="flex items-center gap-2 text-blue-600 text-sm font-semibold hover:underline"
             >
@@ -57,7 +92,7 @@ export default function InstagramLogin2() {
           </div>
 
           <div className="text-center text-sm">
-            <a href="#" className="text-[#00376b] hover:underline">
+            <a href="/olvidar" className="text-[#00376b] hover:underline">
               ¿Olvidaste tu contraseña?
             </a>
           </div>
@@ -66,7 +101,7 @@ export default function InstagramLogin2() {
         {/* Caja adicional fuera del login */}
         <div className="mt-4 border border-gray-300 p-4 w-[350px] text-center bg-white text-sm">
           ¿No tienes una cuenta?
-          <a href="#" className="text-blue-600 font-semibold hover:underline">
+          <a href="/registrate" className="text-blue-600 font-semibold hover:underline">
             {" "}
             Regístrate
           </a>

@@ -1,8 +1,40 @@
-import React from "react";
+"use client";
+
+import { signIn } from "next-auth/react";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function InstagramLogin() {
+
+  const [campo, setCampo] = useState("");
+  const [password, setPassword] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:8080/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ campo, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === true) {
+       
+        router.push("/vistas");
+      } else {
+        alert("Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.error("Error en el login:", error);
+      alert("No se pudo conectar al servidor");
+    }
+  };
   return (
     <div className="bg-white">
       <div className="flex w-full h-screen">
@@ -27,16 +59,23 @@ export default function InstagramLogin() {
             </div>
 
             {/* Formulario */}
-            <form className="space-y-4 flex flex-col items-center">
+            <form
+              className="space-y-4 flex flex-col items-center"
+              onSubmit={handleSubmit}
+            >
               <Input
-                type="email"
-                placeholder="Correo electrónico"
+                type="text"
+                placeholder="Correo electrónico o número de teléfono"
+                value={campo}
+                onChange={(e) => setCampo(e.target.value)}
                 required
                 className="w-[90%] border border-gray-300 px-3 py-2 rounded text-sm"
               />
               <Input
                 type="password"
                 placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-[90%] border border-gray-300 px-3 py-2 rounded text-sm"
               />
@@ -58,6 +97,7 @@ export default function InstagramLogin() {
             {/* Botón de Facebook */}
             <div className="flex justify-center mb-4">
               <Button
+                onClick={() => signIn("facebook")}
                 type="button"
                 variant="link"
                 className="flex items-center gap-2 w-[70%] justify-center  text-blue-600 py-2 rounded text-sm font-semibold "
